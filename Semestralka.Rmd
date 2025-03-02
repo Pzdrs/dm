@@ -1,0 +1,20 @@
+---
+title: "Marketing effectiveness"
+author: "Bc. Petr Boháč"
+date: "2025-03-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Úvod
+Struktura semestrální práce se drží jednotnou DM metodologií CRSIP-DM používanou při řešení data miningových projektů.
+
+## Business Understanding
+## Data Understanding
+## Data Preparation
+## Modeling
+## Evaluation
+## Deployment
