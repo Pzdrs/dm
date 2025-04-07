@@ -1,5 +1,5 @@
 ---
-title: "Marketing effectiveness"
+title: "Efektivita marketingovvých akcí"
 author: "Bc. Petr Boháč"
 date: "2025-03-02"
 output: html_document
@@ -9,12 +9,41 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Úvod
-Struktura semestrální práce se drží jednotnou DM metodologií CRSIP-DM používanou při řešení data miningových projektů.
+## Abstrakt
+Tato semestrální práce si klade za cíl úspěšně vypracovat dataminingový projekt na téma **efektivita marketingových akcí**. Projekt je zaměřen na analýzu historických dat z marketingových kampaní a jejich vyhodnocení. Cílem projektu je zjistit, jak různé typy produktů reagují na marketing, jaký vliv má výše investice do marketingu na úspěšnost kampaně a zda je možné predikovat úspěšnost kampaně na základě historických dat. Projekt bude realizován v programovacím jazyce R a výsledky budou prezentovány v podobě R Markdown dokumentu. Struktura práce se drží jednotnou DM metodologií CRSIP-DM používanou při řešení data miningových projektů.
 
-## Business Understanding
-## Data Understanding
-## Data Preparation
-## Modeling
-## Evaluation
-## Deployment
+## I. Business Understanding
+Základem každého úspěšného dataminingového projektu je pochopení jeho pointy, respektive proč se do projektu pouštím a co od něj očekávám.
+
+Náš pomyslný zákazník je marketingová agentura, která se pravděpodobně zabývá marketingovými kampaněmi pro širokou škálu produktů. Po několika
+úspěšných kampaních se rozhodla, že by bylo dobré analyzovat data z těchto kampaní, což by mohlo přinést nové poznatky, které by potenciálně mohly celý proces zefektivnit. Pro zákazníka jsou nejzajímavější následující informace:
+
+- jak různé typy produktů reagují na marketing
+- jak velký vliv má výše investice do marketingu na úspěšnost kampaně
+- možná predikce úspěšnosti kampaně na základě historických dat
+
+### Definice úspešnosti
+
+V této fázi je také dobré si ujasnit, co je vlastně úspěšnost tohoto projektu z technické data miningové stránky. Hlavím cílem projeku je jednoznačně dozvědět se z historických data něco nového, o čem jsme doposud nevěděli, ale bez stanovení nějakého cíle se těžko určuje úspěšnost.
+
+Jelikož agentura dělá marketing k různým typům produktů, bylo by dobré si udělat představu o tom, které kategorie reagují na marketing dobře a které ne, což by mohlo vést k vyřazení produktů, které jednoduše zákazníky tak nepřitahují. Tudíž nějaký způsob **seřazení produktů podle úspěšnosti kampaně** by byl ideální.
+
+Další důležitou metrikou je výše investice do marketingu. Zde bychom se měli zaměřit na to, jaký vliv má výše investice na úspěšnost kampaně. Je jasné, že čím více peněz do marketingu investujeme, tím větší úspěch můžeme očekávat. **Ale jak moc?** A je to lineární závislost? Nebo je to spíše exponenciální? Nebo je to od určité částky kontraproduktivní? To jsou otázky, které bychom si měli položit a pokusit se na ně v rámci tohoto projektu najít odpovědi.
+
+Zlatým grálem celého projektu je predikce úspěšnosti kampaně na základě historických dat. Zde bychom se měli zaměřit na to, jaké faktory ovlivňují úspěšnost kampaně a jak je možné tyto faktory využít k predikci úspěšnosti kampaně. Úspěšným výstupem by tedy mohl být nějaký **regresní model**, který by měl být schopen predikovat úspěšnost kampaně na základě historických dat. Tento model by mohl být použit k tomu, abychom byli schopni předpovědět úspěšnost kampaně ještě před jejím spuštěním, což by mohlo vést k úspoře peněz a času.
+
+### Projektový plán
+
+Kvalitně dopředu naplánovaný projekt je základním kamenem úspěšného projektu. V rámci technického plánu bychom měli mít jasno v tom, jaké kroky nás čekají a jakým způsobem budeme projekt realizovat. Co se týče výběru programovacího jazyka pro proces analýzy, nabízí se dva jasní kandidáti - Python a R. Oba jazyky jsou extensivně používané v oblasti datové analytiky a oba mají své výhody a nevýhody. Python je jazyk, který je velmi populární a má širokou škálu knihoven, které nám mohou pomoci při realizaci projektu. Na druhou stranu R je jazyk, který je více zaměřen na statistiku a analýzu dat. Jeho specializace nabízí uživatelům intuitivnější přístup k řešení úloh statistické analýzy, což by mohlo být pro náš projekt výhodou.
+
+Programovací jazyk pro tento projekt byl hned ze začátku zvolen zadavatelem projektu, panem doktorem Lamrem, a to **R**. Jak již bylo zmíněno výše, R je specificky zaměřen na tento typ projektů, což by mělo usnadnit a urychlit celý proces. 
+
+Co se týče formy výstupu, nabízí se několik možností podle toho, komu budou výsledky projektu předkládány. V případě, že by se měl výsledek projektu prezentovat v místnosti plné technologicky nedotčených lidí (primárně management), bylo by dobré mít výstup v podobě prezentace, která by byla zaměřena na business a na to, co projekt přinesl. Ovšem vzhledem k tomu, že výsledky budou prezentovány před skupinou lidí, kteří se v oblasti datové analytiky pohybují, byl zvolen formát **R Markdown**, který je dobrým kompromisem mezi prezentací a technickým reportem. Tento formát umožňuje kombinovat text, kód a grafy do jednoho dokumentu, což je ideální pro prezentaci výsledků projektu.
+
+
+
+## II. Data Understanding
+## III. Data Preparation
+## IV. Modeling
+## V. Evaluation
+## VI. Deployment
