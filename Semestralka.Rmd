@@ -1,5 +1,5 @@
 ---
-title: "Efektivita marketingovvých akcí"
+title: "Efektivita marketingových akcí"
 author: "Bc. Petr Boháč"
 date: "2025-03-02"
 output: html_document
@@ -40,9 +40,74 @@ Programovací jazyk pro tento projekt byl hned ze začátku zvolen zadavatelem p
 
 Co se týče formy výstupu, nabízí se několik možností podle toho, komu budou výsledky projektu předkládány. V případě, že by se měl výsledek projektu prezentovat v místnosti plné technologicky nedotčených lidí (primárně management), bylo by dobré mít výstup v podobě prezentace, která by byla zaměřena na business a na to, co projekt přinesl. Ovšem vzhledem k tomu, že výsledky budou prezentovány před skupinou lidí, kteří se v oblasti datové analytiky pohybují, byl zvolen formát **R Markdown**, který je dobrým kompromisem mezi prezentací a technickým reportem. Tento formát umožňuje kombinovat text, kód a grafy do jednoho dokumentu, což je ideální pro prezentaci výsledků projektu.
 
-
-
 ## II. Data Understanding
+Data mining jako proces je postavený na předpokladu, že máme k dispozici dostatečné množství dat - obecně platí že čím více, tím lépe. S rostoucím množstvím dat je obtížnější si udělat představu o tom, co vlastně data obsahují a jaké informace nám mohou poskytnout. Proto je důležité si data nejprve důkladně prozkoumat a zjistit, s čím vlastně pracujeme.
+
+Pro účely tohoto projektu nám byl poskytnut dataset, který obsahuje historická data z marketingových kampaní. Tento dataset nám obecně říká, na jaké typy produktů byly kampaně zaměřeny, kolik peněz bylo do jednotlivých produktů investováno a jak se kampaně promítly do zisků.
+
+Dataset nám byl poskytnut ve formátu **CSV** (z angl. "Comma-Separated Values"), což je standardní formát pro ukládání dat v tabulkové podobě. Tento formát je velmi populární a je podporován většinou programovacích jazyků, což usnadňuje práci s daty. <u>Hodnoty jsou odděleny čárkami, desetinná místa jsou oddělena tečkami a celý soubor je očistěn od nadbytečných whitespace znaků</u> - prakticky perfekně zformátované data.
+
+Ke čtení dat z CSV souboru máme ve standardní knihovně R (dále jen *stdlib*) k dispozici několik funkcí, které nám umožňují načíst data do paměti a začít s nimi pracovat. Hlavní funkcí, která provádí vlastní parsování je funkce `read.table()`, která slouží pro čtení obecných *tabular* dat. Ostatní níže uvedené funkce jsou pouze šikovné wrapper funkce.
+
+- **`read.csv()`**
+  - data oddělena čárkami
+  - desetinná místa oddělena tečkami
+- `read.csv2()`
+  - data oddělena středníky
+  - desetinná místa oddělena čárkami
+- `read.delim()`
+  - data oddělena tabulátory (``\t``)
+  - desetinná místa oddělena tečkami 
+- `read.delim2()`
+  - data oddělena tabulátory
+  - desetinná místa oddělena čárkami
+
+```{r}
+# Načtení dat z CSV souboru do proměnné df
+df <- read.csv("data/GOODS1n.csv")
+```
+
+V dalším kroku by bylo dobré si udělat high-level overview našich dat, která jsme načetli do proměnné `df`. Pro tento účel nám poslouží funkce `str()`, která je pro náš účel naprosto ideální. Zavoláním této jedné funkce získáme základní informace o struktuře dat, jako jsou názvy sloupců, datové typy a počet řádků. 
+
+```{r}
+# Základní informace o struktuře dat
+str(df)
+
+# Všechny možné kategorie produktů
+unique(df$Class)
+```
+
+Jak z výstupu vidíme, načtený dataframe má rozměry 200 x 5, což znamená, že obsahuje **200 řádků**, ve kterých jsou data rozdělena do 5 sloupců. Sloupce, respektive proměnné, které máme k dispozici, jsou tedy následující:
+
+- `Class`
+  - Kategorie produktu (`Confection`, `Drink`, `Luxury`, `Meat`)
+- `Cost`
+  - Cena produktu
+- `Promotion`
+  - Výše investice do marketingu pro daný produkt
+- `Before`
+  - Zisk **před** marketingovou kampaní
+- `After`
+  - Zisk **po** marketingové kampani
+
+Na první pohled se zdá, že data jsou v pořádku a že neobsahují žádné chybějící hodnoty. Nicméně je dobré si udělat základní statistiku pro jednotlivé sloupce, abychom měli jistotu, že data jsou v pořádku a že neobsahují žádné extrémní hodnoty, které by mohly ovlivnit výsledky analýzy. Pro tento účel nám poslouží funkce `summary()` (informační hodnotou velice podobná `Data Audit` uzlu v SPSS Modeleru), která nám poskytne základní deskriptivní statistické informace o jednotlivých sloupcích, jako jsou průměr, medián, minimum a maximum.
+```{r}
+# Základní statistika pro jednotlivé sloupce
+summary(df)
+```
+```{r, figures-side, fig.show="hold", out.width="50%"}
+boxplot(df$Before)
+boxplot(df$After)
+```
+
+missing values checks
+korelacni matice by mohla bejt useful
+distribution + outlier checks
+
+### Vyrovnanost dat
+
+checkout class balancedness
+
 ## III. Data Preparation
 ## IV. Modeling
 ## V. Evaluation
