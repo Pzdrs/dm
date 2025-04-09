@@ -378,3 +378,8 @@ Jak jsme se už zmínili, model funguje velmi dobře a je schopen predikovat hod
 
 ## VI. Deployment
 
+Jelikož se jedná o školní projekt, tak poslední fázi projektu nebudeme nijak rozebírat. V reálných projektech by bylo dobré model nasadit do produkce a začít ho používat pro predikci. Tato fáze bude tedy spíše sloužit jako závěr projektu a shrnutí toho, co jsme udělali. 
+
+Cílem tohoto projektu bylo vytvořit lineární regresní model, který bude schopen predikovat nárůst zisku po marketingové kampani na základě historických dat. Mimo toho jsme se také snažili odhalit nějaké vzory v datech a zjistit, jaký vliv mají jednotlivé proměnné na ostatní proměnné.
+
+Dozvěděli jsme se, že produkty kategorie `Drink` reagují na marketing lépe, než všechny ostatní kategorie. Na druhou stranu produkty kategorie `Meat` reagují na marketing nejhůře a zisky se drží pod hranicí 5% bez ohledu na výši investice do marketingu. Co se týče modelu, tak funguje velmi dobře a je schopen predikovat hodnoty s relativně malou chybou (průměrně 1.16% a maximálně 2.32%). R-kvadrát je 0.8651, což znamená, že model vysvětluje 86.51% variability v datech. 
