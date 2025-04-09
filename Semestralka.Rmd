@@ -45,6 +45,8 @@ Data mining jako proces je postavený na předpokladu, že máme k dispozici dos
 
 Pro účely tohoto projektu nám byl poskytnut dataset, který obsahuje historická data z marketingových kampaní. Tento dataset nám obecně říká, na jaké typy produktů byly kampaně zaměřeny, kolik peněz bylo do jednotlivých produktů investováno a jak se kampaně promítly do zisků.
 
+### Co máme k dispozici za data?
+
 Dataset nám byl poskytnut ve formátu **CSV** (z angl. "Comma-Separated Values"), což je standardní formát pro ukládání dat v tabulkové podobě. Tento formát je velmi populární a je podporován většinou programovacích jazyků, což usnadňuje práci s daty. <u>Hodnoty jsou odděleny čárkami, desetinná místa jsou oddělena tečkami a celý soubor je očistěn od nadbytečných whitespace znaků</u> - prakticky perfekně zformátované data.
 
 Ke čtení dat z CSV souboru máme ve standardní knihovně R (dále jen *stdlib*) k dispozici několik funkcí, které nám umožňují načíst data do paměti a začít s nimi pracovat. Hlavní funkcí, která provádí vlastní parsování je funkce `read.table()`, která slouží pro čtení obecných *tabular* dat. Ostatní níže uvedené funkce jsou pouze šikovné wrapper funkce.
@@ -90,23 +92,75 @@ Jak z výstupu vidíme, načtený dataframe má rozměry 200 x 5, což znamená,
 - `After`
   - Zisk **po** marketingové kampani
 
+### Kvalitativní ověření dat
+
 Na první pohled se zdá, že data jsou v pořádku a že neobsahují žádné chybějící hodnoty. Nicméně je dobré si udělat základní statistiku pro jednotlivé sloupce, abychom měli jistotu, že data jsou v pořádku a že neobsahují žádné extrémní hodnoty, které by mohly ovlivnit výsledky analýzy. Pro tento účel nám poslouží funkce `summary()` (informační hodnotou velice podobná `Data Audit` uzlu v SPSS Modeleru), která nám poskytne základní deskriptivní statistické informace o jednotlivých sloupcích, jako jsou průměr, medián, minimum a maximum.
+
 ```{r}
 # Základní statistika pro jednotlivé sloupce
 summary(df)
 ```
-```{r, figures-side, fig.show="hold", out.width="50%"}
-boxplot(df$Before)
-boxplot(df$After)
+
+I když náš dataset doposud vypadá v pořádku, ničemu neublíží, když si uděláme ještě pár dalších kontrol. Zmínili jsme například možnou existenci chybějících hodnot, které by mohly ovlivnit výsledky analýzy. Pro tento účel nám poslouží funkce `is.na()`, která nám vrátí TRUE pro každou chybějící hodnotu a FALSE pro každou hodnotu, která není chybějící. Funkci `colSums()` pak použijeme k tomu, abychom zjistili, kolik chybějících hodnot máme v jednotlivých sloupcích.
+
+```{r}
+# Kontrola chybějících hodnot
+colSums(is.na(df))
 ```
 
-missing values checks
-korelacni matice by mohla bejt useful
-distribution + outlier checks
+Z výsupu je očividné, že data neobsahují žádné chybějící hodnoty, což nám o to více usnadní třetí fázi projektu (Data Preparation).
 
-### Vyrovnanost dat
+Proměnné, které nabývají pouze několika hodnot, jsou kvalitativní (kategorické) a proměnné, které nabývají libovolných hodnot, jsou kvantitativní (numerické). V našem případě máme k dispozici jednu kvalitativní proměnnou `Class`, která obsahuje 4 různé kategorie produktů. Kategorické proměnné můžou trpět tzv. *nevyvážeností*, což znamená, že některé kategorie mohou být zastoupeny více než jiné, což by mohlo ovlivnit výsledky analýzy. 
 
-checkout class balancedness
+```{r}
+barplot(
+  table(df$Class),
+  main = "Zastoupení jednotlivých kategorií produktů",
+  xlab = "Kategorie produktu",
+  ylab = "Počet produktů",
+  col = c("red", "blue", "green", "yellow"),
+  names.arg = c("Confection", "Drink", "Luxury", "Meat")
+)
+```
+
+Ze sloupcového grafu je vidět, že kategorie `Luxury` je zastoupena nejvíce s celkovým počtem produktů 70. Tata distribuce by mohla být problémová v případě trénování klasifikačního modelu a pravděpodobně by v další fázi projektu vyžadovala umělé vyvážení. Jelikož ale náš cílový model bude regresního charakteru, tak by to neměl být problém.
+
+Co ale je pro regresní modely relevantní, je rozložení numerických proměnných. Pro tento účel nám poslouží funkce `hist()`, která nám zobrazí histogram pro jednotlivé sloupce. Histogram je grafické znázornění rozložení dat, které nám umožňuje vidět, jak jsou data rozložena a zda obsahují nějaké extrémní hodnoty. 
+
+```{r, fig.show='hold', out.width="50%"}
+# Cena produktu
+hist(df$Cost, main = "Cena produktu", xlab = "Cena", ylab = "Počet produktů", col = "blue", freq = FALSE)
+lines(density(df$Cost, na.rm = TRUE), col = "darkblue", lwd = 2)
+
+# Výše investice do marketingu
+hist(df$Promotion, main = "Výše investice do marketingu", xlab = "Investice", ylab = "Počet produktů", col = "red", freq = FALSE)
+lines(density(df$Promotion, na.rm = TRUE), col = "darkred", lwd = 2)
+
+# Zisk před marketingovou kampaní
+hist(df$Before, main = "Zisk před marketingovou kampaní", xlab = "Zisk", ylab = "Počet produktů", col = "green", freq = FALSE)
+lines(density(df$Before, na.rm = TRUE), col = "darkgreen", lwd = 2)
+
+# Zisk po marketingové kampani
+hist(df$After, main = "Zisk po marketingové kampani", xlab = "Zisk", ylab = "Počet produktů", col = "yellow", freq = FALSE)
+lines(density(df$After, na.rm = TRUE), col = "orange", lwd = 2)
+```
+
+Z výstupu je vidět, že rozložení jednotlivých proměnných je v pořádku a **neobsahuje žádné extrémní hodnoty** (tzv. *outliers*).
+
+### Hlubší průzkum dat
+
+Ke konci této fáze, která je zaměřena na porozumění datům, by bylo také dobré prozkoumat, jesli data mezi sebou nemají nějaké zřejmé vztahy. Je dost možné, že žádné převratné vztahny mezi daty neodhalíme, ale jak již bylo řečeno, v této fázi máme porozumět datům a **pokusit** se odhalit potenciální vzory, které by mohly být užitečné pro další fáze projektu. 
+
+Jednou věcí, kterou můžeme zkusit, je vytvořit nad daty tzv. *korelační matici*. Korelační matice je tabulka, která nám ukazuje, jak jsou jednotlivé proměnné mezi sebou korelovány. Korelace je míra toho, jak jsou dvě proměnné mezi sebou spojeny a může nabývat hodnot od -1 do 1. Pokud je korelace blízká 1, znamená to, že obě proměnné jsou silně pozitivně korelovány. Pokud je korelace blízká -1, znamená to, že obě proměnné jsou silně negativně korelovány. Pokud je korelace blízká 0, znamená to, že obě proměnné nejsou mezi sebou korelovány. Pro výpočet korelační matice použijeme funkci `cor()`, která nám vrátí korelační matici pro všechny numerické sloupce v datovém rámci. Jelikož máme k dispozici pouze 4 numerické sloupce, tak matice bude mít rozměry 4 x 4.
+
+```{r}
+# Korelační matice
+cor(df[, c("Cost", "Promotion", "Before", "After")])
+```
+
+Většina hodnot v korelační matici je blízká 0, což znamená, že mezi jednotlivými proměnnými není žádná silná korelace. Nicméně je zde jedna zajímavá věc - a to je silná pozitivní korelace mezi proměnnými `Before` a `After`, což je logické, jelikož zisk po marketingové kampani by měl být vyšší než zisk před marketingovou kampaní a naopak.
+
+Korelační matice nám toho tedy moc neřekla, ale stálo to za pokus. Mohli bychom zkusit ještě nějaké pokročilejší metody, ale náš originální dataset stejně neobsahuje moc zajímavých dat, které bychom mohli prozkoumat. V další fázi projektu se zaměříme na přípravu dat pro další fáze projektu, což by nám mohlo otevřít nové možnosti pro hlubší analýzu.
 
 ## III. Data Preparation
 ## IV. Modeling
