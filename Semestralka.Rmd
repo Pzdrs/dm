@@ -3,8 +3,8 @@ title: "Efektivita marketingových akcí"
 author: "Bc. Petr Boháč"
 date: "2025-03-02"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -230,7 +230,7 @@ ggplot(df) +
   )
 ```
 
-Z předešlého grafu můžeme vyčíst hned několik věcí ohledně toho, jak různé kategorie produktů reagují na různé výše investice do marketingu. Je například patrné, že bez ohledu na to, kolik jsme investovali do marketingu pro produkty typu `Meat`, zisky se drží pod hranicí 5%. Ostatní kategorie se obecně drží stejného trendu - čím více investujeme do marketingu, tím větší navýšení zisku můžeme očekávat. Nicméně nejzajímavější informací, kterou z grafu můžeme vidět, je to, že kategorie `Drink` reaguje na marketing **lépe, než všechny ostatní kategorie**.
+Z předešlého grafu můžeme vyčíst hned několik věcí ohledně toho, jak různé kategorie produktů reagují na různé výše investice do marketingu. Je například patrné, že bez ohledu na to, kolik jsme investovali do marketingu pro produkty typu `Meat`, zisky se drží pod hranicí 5%. Ostatní kategorie se obecně drží jednoho trendu - čím více investujeme do marketingu, tím větší navýšení zisku můžeme očekávat. Nicméně nejzajímavější informací, kterou z grafu můžeme vidět, je to, že kategorie `Drink` reaguje na marketing **lépe, než všechny ostatní kategorie**.
 
 ### Příznakování dat
 
@@ -296,3 +296,4 @@ dim(test_data)
 ## IV. Modeling
 ## V. Evaluation
 ## VI. Deployment
+
