@@ -2,11 +2,14 @@
 title: "Efektivita marketingových akcí"
 author: "Bc. Petr Boháč"
 date: "2025-03-02"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
 ```
 
 ## Abstrakt
@@ -112,7 +115,7 @@ Z výsupu je očividné, že data neobsahují žádné chybějící hodnoty, co�
 
 Proměnné, které nabývají pouze několika hodnot, jsou kvalitativní (kategorické) a proměnné, které nabývají libovolných hodnot, jsou kvantitativní (numerické). V našem případě máme k dispozici jednu kvalitativní proměnnou `Class`, která obsahuje 4 různé kategorie produktů. Kategorické proměnné můžou trpět tzv. *nevyvážeností*, což znamená, že některé kategorie mohou být zastoupeny více než jiné, což by mohlo ovlivnit výsledky analýzy. 
 
-```{r}
+```{r, fig.align="center"}
 barplot(
   table(df$Class),
   main = "Zastoupení jednotlivých kategorií produktů",
@@ -127,22 +130,50 @@ Ze sloupcového grafu je vidět, že kategorie `Luxury` je zastoupena nejvíce s
 
 Co ale je pro regresní modely relevantní, je rozložení numerických proměnných. Pro tento účel nám poslouží funkce `hist()`, která nám zobrazí histogram pro jednotlivé sloupce. Histogram je grafické znázornění rozložení dat, které nám umožňuje vidět, jak jsou data rozložena a zda obsahují nějaké extrémní hodnoty. 
 
-```{r, fig.show='hold', out.width="50%"}
+```{r, fig.show="hold", out.width="50%"}
 # Cena produktu
-hist(df$Cost, main = "Cena produktu", xlab = "Cena", ylab = "Počet produktů", col = "blue", freq = FALSE)
-lines(density(df$Cost, na.rm = TRUE), col = "darkblue", lwd = 2)
+ggplot(df, aes(x = Cost)) +
+  geom_histogram(
+    aes(y = after_stat(density)),
+    fill = "blue",
+    color = "black",
+    bins = 20
+  ) +
+  geom_density(color = "darkblue", linewidth = 1) +
+  labs(title = "Cena produktu", x = "Cena", y = "Hustota")
 
 # Výše investice do marketingu
-hist(df$Promotion, main = "Výše investice do marketingu", xlab = "Investice", ylab = "Počet produktů", col = "red", freq = FALSE)
-lines(density(df$Promotion, na.rm = TRUE), col = "darkred", lwd = 2)
+ggplot(df, aes(x = Promotion)) +
+  geom_histogram(
+    aes(y = after_stat(density)),
+    fill = "red",
+    color = "black",
+    bins = 30
+  ) +
+  geom_density(color = "darkred", linewidth = 1) +
+  labs(title = "Výše investice do marketingu", x = "Investice", y = "Hustota")
 
 # Zisk před marketingovou kampaní
-hist(df$Before, main = "Zisk před marketingovou kampaní", xlab = "Zisk", ylab = "Počet produktů", col = "green", freq = FALSE)
-lines(density(df$Before, na.rm = TRUE), col = "darkgreen", lwd = 2)
+ggplot(df, aes(x = Before)) +
+  geom_histogram(
+    aes(y = after_stat(density)),
+    fill = "green",
+    color = "black",
+    bins = 30
+  ) +
+  geom_density(color = "darkgreen", linewidth = 1) +
+  labs(title = "Zisk před marketingovou kampaní", x = "Zisk", y = "Hustota")
 
 # Zisk po marketingové kampani
-hist(df$After, main = "Zisk po marketingové kampani", xlab = "Zisk", ylab = "Počet produktů", col = "yellow", freq = FALSE)
-lines(density(df$After, na.rm = TRUE), col = "orange", lwd = 2)
+ggplot(df, aes(x = After)) +
+  geom_histogram(
+    aes(y = after_stat(density)),
+    fill = "yellow",
+    color = "black",
+    bins = 30
+  ) +
+  geom_density(color = "orange", linewidth = 1) +
+  labs(title = "Zisk po marketingové kampani", x = "Zisk", y = "Hustota")
 ```
 
 Z výstupu je vidět, že rozložení jednotlivých proměnných je v pořádku a **neobsahuje žádné extrémní hodnoty** (tzv. *outliers*).
@@ -163,6 +194,105 @@ Většina hodnot v korelační matici je blízká 0, což znamená, že mezi jed
 Korelační matice nám toho tedy moc neřekla, ale stálo to za pokus. Mohli bychom zkusit ještě nějaké pokročilejší metody, ale náš originální dataset stejně neobsahuje moc zajímavých dat, které bychom mohli prozkoumat. V další fázi projektu se zaměříme na přípravu dat pro další fáze projektu, což by nám mohlo otevřít nové možnosti pro hlubší analýzu.
 
 ## III. Data Preparation
+
+Třetí fáze CRISP-DM projektů obecně zabírá nejvíce času z celého projektu. Obecně se říká, že **80% času strávíme přípravou dat a 20% času analýzou dat**. Tento poměr je samozřejmě orientační a může se lišit projekt od projektu, ale je dobré mít na paměti, že příprava dat je velmi důležitá a že by se jí mělo věnovat dostatek času.
+
+V reálných projektech se většinou setkáváme s daty, která nejsou v ideálním stavu a potřebují nejdříve trochu lásky. Může jít o různé problémy, jako jsou chybějící hodnoty, duplicitní hodnoty, extrémní hodnoty, špatné formátování dat a podobně. V našem případě jsme ale měli štěstí a dataset byl prakticky v perfektním stavu, což tuto fázi značně urychlí.
+
+### Derivace nových proměnných
+
+I tak bude ale potřeba si s daty trochu pohrát, než nad nimi budeme moci začít trénovat modely. Prvním krokem bude přidat do datového rámce nový sloupec, který bude zachycovat navýšení zisku po marketingové kampani. Nazveme tento sloupec `RevenueIncrease` a jeho hodnota bude vypočtena jako rozdíl mezi ziskem po marketingové kampani a ziskem před marketingovou kampaní v procentech, respektive následující vzorec:
+
+\[
+\text{SalesIncrease} = \frac{\text{After} - \text{Before}}{\text{Before}} \times 100\%
+\]
+
+```{r}
+# Přidání nového sloupce do datového rámce
+df$RevenueIncrease <- (df$After - df$Before) / df$Before * 100
+```
+
+Vybavme si poslední část předchozí fáze, kde jsme se snažili odhalit nějaké vzory v datech. V tu dobu jsme měli k dispozici pouze 4 numerické sloupce, které jsme prozkoumali. Nyní máme k dispozici 5 sloupců, což nám dává více možností pro analýzu dat. Například bychom mohli zkusit zjistit, jaký vliv má výše investice do marketingu na procentuální navýšení zisku. Pro tento účel použijeme funkci `plot()`, která nám zobrazí scatter plot pro sloupce `Promotion` a `RevenueIncrease`. Scatter plot je grafické znázornění dat, které nám umožňuje vidět, jak jsou data rozložena a zda obsahují nějaké extrémní hodnoty.
+
+```{r, fig.align="center"}
+# Scatter plot pro jednotlivé sloupce
+ggplot(df) +
+  geom_point(aes(
+    x = Promotion,
+    y = RevenueIncrease,
+    color = Class
+  )) +
+  labs(
+    title = "Scatter plot pro jednotlivé sloupce",
+    x = "Výše investice do marketingu",
+    y = "Procentuální navýšení zisku",
+    color = "Kategorie produktu"
+  )
+```
+
+Z předešlého grafu můžeme vyčíst hned několik věcí ohledně toho, jak různé kategorie produktů reagují na různé výše investice do marketingu. Je například patrné, že bez ohledu na to, kolik jsme investovali do marketingu pro produkty typu `Meat`, zisky se drží pod hranicí 5%. Ostatní kategorie se obecně drží stejného trendu - čím více investujeme do marketingu, tím větší navýšení zisku můžeme očekávat. Nicméně nejzajímavější informací, kterou z grafu můžeme vidět, je to, že kategorie `Drink` reaguje na marketing **lépe, než všechny ostatní kategorie**.
+
+### Příznakování dat
+
+Kategorie produktů jsou pro naše modely zásadní informací. Problémem ale je, že modely neumí pracovat s textovými hodnotami, které jsou v našem datasetu. Proto je potřeba převést tyto hodnoty na numerické hodnoty, které modely budou schopny zpracovat. Tento proces se nazývá *příznakování* (z angl. "feature engineering") a je velmi důležitý pro další fáze projektu.
+
+Konkrétní proces příznakování se bude skládat z následujících kroků:
+
+1. Derivace nových binárních proměnných pro každou z kategorií produktů
+      - Tímto způsobem vytvoříme 4 nové proměnné, které budou mít hodnotu 1, pokud je produkt v dané kategorii a 0, pokud není
+
+2. Vynásobení každé z nových proměnných hodnotou `Promotion` pro daný produkt
+      - tohle fr nevim proc delame
+
+3. Odstranění nyní redundantních sloupců `Class` a `Promotion`
+      - sloupec `Class` je redundantní, jelikož jsme ho převedli na 4 nové proměnné
+      - sloupec `Promotion` je redundantní, jelikož jsme ho vynásobili každou z nových proměnných
+```{r}
+# Derivace nových proměnných pro každou z kategorií produktů
+df$Class_Confection <- ifelse(df$Class == "Confection", 1, 0)
+df$Class_Drink <- ifelse(df$Class == "Drink", 1, 0)
+df$Class_Luxury <- ifelse(df$Class == "Luxury", 1, 0)
+df$Class_Meat <- ifelse(df$Class == "Meat", 1, 0)
+
+# Vynásobení každé z nových proměnných hodnotou Promotion pro daný produkt
+df$Class_Confection <- df$Class_Confection * df$Promotion
+df$Class_Drink <- df$Class_Drink * df$Promotion
+df$Class_Luxury <- df$Class_Luxury * df$Promotion
+df$Class_Meat <- df$Class_Meat * df$Promotion
+
+# Odstranění redundantních sloupců
+df$Class <- NULL
+df$Promotion <- NULL
+
+# Výsledek příznakování
+head(df)
+```
+
+### Rozdělení dat na různé sady
+
+V posledním kroku této fáze je potřeba rozdělit data na různé sady, které budeme používat pro trénování a testování modelů. Dělení datasetů tímto způsobem je velmi důležité, jelikož nám umožňuje testovat modely na datech, která nebyla použita pro trénování. Tímto způsobem můžeme zjistit, jak dobře modely fungují na nových datech a zda jsou schopny generalizovat na nová data. Pokud bychom modely testovali na stejných datech, na kterých byly trénovány, mohli bychom získat zkreslené výsledky, které by nám neřekly nic o tom, jak dobře modely fungují na nových datech. Obecně se doporučuje rozdělit data na 3 sady:
+
+- **Trénovací sada** (z angl. "training set") - tato sada se používá pro trénování modelů
+- **Testovací sada** (z angl. "test set") - tato sada se používá pro testování modelů
+- **Validační sada** (z angl. "validation set") - tato sada se používá pro validaci modelů
+
+V našem případě, kdy celý náš dataset obsahuje žalostných 200 řádků, se omezíme pouze na první dva typy sad.
+
+Obecně se doporučuje rozdělit data na 70% pro trénovací sadu a 30% pro testovací sadu. V našem případě ale radši z pochopitelných důvodů použijeme poměr 9:1, což bude znamenat, že trénovací sada bude obsahovat 180 řádků a testovací sada bude obsahovat 20 řádků. Pro rozdělení dat použijeme funkci `sample()`, která nám vrátí náhodný vzorek z datového rámce.
+
+```{r}
+# Rozdělení dat na trénovací a testovací sadu
+set.seed(123) # pro reprodukovatelnost
+
+train_index <- sample(seq_len(nrow(df)), size = 0.9 * nrow(df))
+train_data <- df[train_index, ]
+test_data <- df[-train_index, ]
+
+# Kontrola rozměrů datových rámců
+dim(train_data)
+dim(test_data)
+```
+
 ## IV. Modeling
 ## V. Evaluation
 ## VI. Deployment
