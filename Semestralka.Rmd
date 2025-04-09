@@ -3,8 +3,8 @@ title: "Efektivita marketingových akcí"
 author: "Bc. Petr Boháč"
 date: "2025-03-02"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -19,7 +19,7 @@ Tato semestrální práce si klade za cíl úspěšně vypracovat dataminingový
 Základem každého úspěšného dataminingového projektu je pochopení jeho pointy, respektive proč se do projektu pouštím a co od něj očekávám.
 
 Náš pomyslný zákazník je marketingová agentura, která se pravděpodobně zabývá marketingovými kampaněmi pro širokou škálu produktů. Po několika
-úspěšných kampaních se rozhodla, že by bylo dobré analyzovat data z těchto kampaní, což by mohlo přinést nové poznatky, které by potenciálně mohly celý proces zefektivnit. Pro zákazníka jsou nejzajímavější následující informace:
+úspěšných kampaních se rozhodla, že by bylo dobré analyzovat data z těchto kampaní, což by mohlo přinést nové poznatky, které by potenciálně mohly celý proces zefektivnit. Pro zákazníka by mohly být nejzajímavější například následující informace:
 
 - jak různé typy produktů reagují na marketing
 - jak velký vliv má výše investice do marketingu na úspěšnost kampaně
@@ -294,6 +294,87 @@ dim(test_data)
 ```
 
 ## IV. Modeling
+
+Nejzajímavější, ale často i nejkratší fáze celého projektu je samotná tvorba modelů. Modely mohou být různého typu podle toho, jaký problém se snažíme vyřešit. V našem případě se jedná o regresní modely, které se snaží predikovat hodnotu na základě historických dat. Pro tento účel máme k dispozici několik různých typů modelů. Pro naše účely použijeme tzv. **lineární regresi**, která je jedním z nejjednodušších a nejčastěji používaných modelů pro regresní úlohy. Lineární regrese se snaží najít nejlepší přímku, která prochází daty a která nám umožňuje predikovat hodnotu na základě historických dat. Tento model je velmi jednoduchý a snadno interpretovatelný, což je pro naše účely ideální.
+
+V R máme k dispozici funkci `lm()`, která nám umožňuje vytvořit lineární regresní model. Tato funkce nám umožňuje specifikovat, jaké proměnné chceme použít pro trénování modelu a jaký typ modelu chceme vytvořit.
+
+V našem případě chceme vytvořit lineární regresní model, který bude predikovat hodnotu `RevenueIncrease` na základě hodnot proměnných `Cost`, `Class_Confection`, `Class_Drink`, `Class_Luxury` a `Class_Meat`. Tento model nám umožní zjistit, jaký vliv mají jednotlivé proměnné na hodnotu `RevenueIncrease` a jak jsou mezi sebou korelovány.
+
+```{r}
+# Vytvoření lineárního regresního modelu
+model <- lm(
+  RevenueIncrease ~
+    Cost +
+      Class_Confection +
+      Class_Drink +
+      Class_Luxury +
+      Class_Meat,
+  data = train_data
+)
+```
+
+V ideálním případě bychom v této fázi měl natrénovat více kandidátů a iterovat je dokud nenajdeme ten nejlepší. Jelikož ale máme k dispozici tak málo dat a navíc se jedná o školní projekt, tak se spokojíme pouze s jedním modelem. V reálných projektech by bylo dobré natrénovat více modelů a porovnat jejich výsledky, abychom zjistili, který model funguje nejlépe. Pro tento účel máme k dispozici několik různých metrik, které nám umožňují porovnat jednotlivé modely a zjistit, který model funguje nejlépe.
+
 ## V. Evaluation
+
+V této fázi projektu se zaměříme na vyhodnocení modelu, který jsme vytvořili v předchozí fázi. Pro tento účel použijeme testovací sadu, kterou jsme vytvořili v předchozí fázi. Tímto způsobem můžeme zjistit, jak dobře model funguje na nových datech a zda je schopen generalizovat na nová data.
+
+### Vyhodnocení modelu
+
+Vyhodnocování modelů je velmi důležité, jelikož nám umožňuje zjistit, jak dobře model funguje na nových datech a zda je schopen generalizovat na nová data. Pro tento účel máme k dispozici několik různých metrik, které nám umožňují porovnat jednotlivé modely a zjistit, který model funguje nejlépe. R nám nabízí velice užitečnou funkci `summary()`, která nám poskytne základní informace o modelu, jako jsou koeficienty, standardní chyby, t-hodnoty a p-hodnoty. Tyto informace nám umožňují zjistit, jak dobře model funguje a zda jsou jednotlivé proměnné mezi sebou korelovány.
+
+```{r}
+# Základní informace o modelu
+summary(model)
+```
+
+I když funkce `summary()` nabízí pouhé shrnutí modelu, výstup je pro laika velice těžko čitelný. Proto si celý výstup projdeme krok po kroku a vysvětlíme si, co jednotlivé části znamenají.
+
+#### Residuals
+
+První část výstupu nám poskytuje základní informace o reziduálech (z angl. "residuals"), což jsou rozdíly mezi skutečnými hodnotami a hodnotami, které model predikuje. Tato část výstupu nám poskytuje minimum, 1. kvartil, medián, 3. kvartil a maximum. Lidově řečeno, reziduály nám říkají, jak moc se model mýlí. Čím menší reziduály, tím lépe model funguje.
+
+Na základě výstupu můžeme říct, že model se mýlí v průměru o 1.16% a že maximální chyba je 2.32%. To je pro náš účel přijatelný výsledek, jelikož model je schopen predikovat hodnoty s relativně malou chybou.
+
+#### Coefficients
+
+Druhá část výstupu nám poskytuje informace o koeficientech (z angl. "coefficients"), což jsou hodnoty, které model používá pro predikci. Tato část výstupu nám poskytuje odhadované hodnoty koeficientů, standardní chyby, t-hodnoty a p-hodnoty. Koeficienty nám říkají, jaký vliv má jednotlivá proměnná na hodnotu `RevenueIncrease`. Čím větší koeficient, tím větší vliv má daná proměnná na hodnotu `RevenueIncrease`.
+
+Koeficienty nám říkají, jaký vliv má jednotlivá proměnná na hodnotu `RevenueIncrease`. Například koeficient pro proměnnou `Cost` je 0.0037, což znamená, že pokud zvýšíme cenu produktu o 1 Kč, očekáváme, že se zisk po marketingové kampani zvýší o 0.0037%. Koeficient pro proměnnou `Class_Confection` je 0.0058, což znamená, že pokud je produkt v kategorii `Confection`, očekáváme, že se zisk po marketingové kampani zvýší o 0.0058%. Koeficienty pro ostatní kategorie produktů jsou podobné a ukazují, že všechny kategorie produktů mají pozitivní vliv na hodnotu `RevenueIncrease`.
+
+Z předchozího tvrzení to vypadá, že všechny prediktory mají silný vliv na hodnotu `RevenueIncrease`, ale to není pravda. Pouhá hodnota `Estimate` nám neříká celý příběh. Každý koeficient má také svou standardní chybu, která nám říka, jak jistý si model je. V případě prediktoru `Cost` je standardní chyba 0.0032, což znamená, že model si není jistý tím, jaký vliv má tato proměnná na hodnotu `RevenueIncrease`. Naopak koeficienty pro ostatní kategorie produktů mají velmi malou standardní chybu, což znamená, že model si je jistý (užitečně znázorněno `***` na konci řádků) tím, jaký vliv mají tyto proměnné na hodnotu `RevenueIncrease`. Kombinací koeficientu a standardní chyby dle následujícího vzorec
+
+\[
+t = \frac{\text{Estimate}}{\text{Std. Error}} 
+\]
+
+můžeme vypočítat tzv. *t-hodnotu*, která nám říká, jak moc je daný koeficient významný. Čím větší t-hodnota, tím větší vliv má daná proměnná na hodnotu `RevenueIncrease`. T-hodnota se počítá jako podíl koeficientu a standardní chyby. V našem případě jsou t-hodnoty pro všechny kategorie produktů velmi vysoké, což znamená, že všechny kategorie produktů mají pozitivní vliv na hodnotu `RevenueIncrease`.
+
+#### Ostatní metriky
+
+Poslední část výstupu nám poskytuje informace o ostatních metrikách, které nám říkají, jak dobře model funguje. Tato část výstupu nám poskytuje reziduální standardní chybu, R-kvadrát a F-statistiku. Do detailů se pouštět nebudeme, ale obecně platí, že čím menší reziduální standardní chyba, tím lépe model funguje. R-kvadrát nám říká, kolik variability v datech je vysvětleno modelem. Čím větší R-kvadrát, tím lépe model funguje. F-statistika nám říká, jak dobře model funguje v porovnání s průměrným modelem. Čím větší F-statistika, tím lépe model funguje.
+
+Jednoduše řečeno, vzhledem k množství dat, které jsme měli k dispozici, náš model **funguje velmi dobře**. R-kvadrát je 0.8651, což znamená, že model vysvětluje 86.51% variability v datech. To je velmi dobrý výsledek a znamená to, že model je schopen predikovat hodnoty s relativně malou chybou.
+
+### Aplikace modelu na testovací sadu
+
+V posledním kroku této fáze by bylo dobré aplikovat model na testovací sadu, kterou jsme vytvořili v předchozí fázi, abysme si ověřili jeho kvalitu. Tímto způsobem můžeme zjistit, jak dobře model funguje na nových datech a zda je schopen generalizovat na nová data. Pro tento účel použijeme funkci `predict()`, která nám umožňuje aplikovat model na nová data a získat predikce pro jednotlivé řádky.
+
+```{r}
+# Použití modelu na testovací sadu
+predictions <- predict(model, newdata = test_data)
+
+# Porovnání predikcí s reálnými hodnotami
+comparison <- data.frame(
+  Actual = test_data$RevenueIncrease,
+  Predicted = predictions
+)
+
+comparison
+```
+
+Jak jsme se už zmínili, model funguje velmi dobře a je schopen predikovat hodnoty s relativně malou chybou (maximálně 2.32%). V průměru se model mýlí o 1.16%, čemuž poslední výstup přibližně odpovídá.  
+
 ## VI. Deployment
 
